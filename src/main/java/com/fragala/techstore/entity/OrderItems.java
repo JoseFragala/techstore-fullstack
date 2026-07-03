@@ -1,8 +1,7 @@
 package com.fragala.techstore.entity;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
-import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,33 +10,35 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "product_images")
-public class ProductImage {
+@NoArgsConstructor
+@Table(name = "order_items")
+public class OrderItems {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(nullable = false)
-    private String imageUrl;
+    private Integer quantity;
 
-    @Column(nullable = false) //order to show the images.
-    private Integer displayOrder;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-
+    @Column(nullable = false)
+    private BigDecimal unitPrice;
     
+
     
 }
