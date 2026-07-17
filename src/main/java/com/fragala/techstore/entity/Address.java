@@ -33,36 +33,51 @@ private User user;
 private Long id;
 
 @Column(nullable = false) // after we'll use to name the adresses (home, work, other.)
+@Setter
 private String name;
+
+@Column(nullable = false)
+@Setter
+private String street;
+
+@Column(nullable = false)
+@Setter
+private String number;
 
 @Column
 @Setter
 private String complement;
 
 @Column(nullable = false)
+@Setter
 private String neighborhood;
 
 @Column(nullable = false)
+@Setter
 private String city;
 
 @Column(nullable = false)
+@Setter
 private String state;
 
-@Column(nullable = false)
+@Column(name = "zip_code", nullable = false)
+@Setter
 private String zipCode;
 
 @Column(nullable = false)
+@Setter
 private String country;
 
-@Column (nullable = false)
+@Column (name = "is_default", nullable = false)
+@Setter
 private boolean isDefault;
 
 @CreationTimestamp
-@Column (nullable = false, updatable = false)
+@Column (name = "created_at",nullable = false, updatable = false)
 private LocalDateTime createdAt;
 
 @UpdateTimestamp   
-@Column(nullable = false)
+@Column(name = "updated_at")
 private LocalDateTime updatedAt;
 
     

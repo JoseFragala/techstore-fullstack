@@ -45,6 +45,7 @@ Business purpose:
 
 - Store shipping information.
 - Allow users to manage multiple delivery locations.
+- Allow one address to be marked as the user's current default delivery option.
 
 ---
 
@@ -133,8 +134,9 @@ Relationships:
 Business purpose:
 
 - Store the selected product.
-- Store quantity
-- Store the product price while the item remains in the cart.
+- Store quantity.
+- Reference the current Product price dynamically while the item remains in the cart.
+- Keep cart pricing separate from order-history pricing.
 
 ---
 
@@ -147,12 +149,13 @@ Represents a completed purchase.
 Relationships:
 
 - One User
-- One Adress
+- One OrderShippingAddress
 - Many Order Items
 
 Business purpose:
 
 - Preserve the purchase history.
+- Preserve the shipping address snapshot used at checkout.
 
 ---
 
@@ -169,7 +172,21 @@ Business purpose:
 
 - Preserve the purchased product.
 - Preserve Quantity.
-- Preserve the purchase price.
+- Preserve the historical unit price confirmed at checkout.
+
+---
+
+## OrderShippingAddress
+
+Represents the immutable shipping-address snapshot copied into an order during checkout.
+
+Relationships:
+
+- One Order
+
+Business purpose:
+
+- Preserve order-history shipping data independently of future edits to the user's address book.
 
 
 

@@ -12,7 +12,7 @@ This document tracks the current implementation progress of TechStore.
 
 - [x] Role
 - [x] User
-- [ ] Address
+- [x] Address
 
 ---
 
@@ -27,15 +27,16 @@ This document tracks the current implementation progress of TechStore.
 
 ## Shopping
 
-- [ ] Cart
-- [ ] CartItem
+- [x] Cart
+- [x] CartItem
 
 ---
 
 ## Orders
 
-- [ ] Order
-- [ ] OrderItem
+- [x] Order
+- [x] OrderItem
+- [x] OrderShippingAddress
 
 ---
 

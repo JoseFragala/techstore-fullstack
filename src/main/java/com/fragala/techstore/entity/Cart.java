@@ -29,19 +29,28 @@ public class Cart {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "Cart")
-    private List <CartItems> cartItems;
+    @OneToMany(mappedBy = "cart", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems;
 
-    
+
+//Domain methods
+    public boolean isEmpty() {
+        return cartItems.isEmpty();
+    }
+
+    public void clear() {
+        cartItems.clear();
+    }
+
 }

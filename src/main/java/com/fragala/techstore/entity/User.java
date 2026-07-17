@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,29 +40,35 @@ public class User {
     @Column (nullable = false)
     private String password;
 
-    @Setter
     @Column (nullable = false)
     private String phone;
 
     @Column (nullable = false)
-    private boolean active;
+    private boolean active = true;
 
     @CreationTimestamp
-    @Column (nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column (nullable = false, updatable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Setter
     @JoinColumn(name = "role_id", nullable = false)
     @ManyToOne
     private Role role;
 
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
+
+    @OneToMany(mappedBy = "user")
+    private List<Address> addresses;
+
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
     
+// business methods
+
 
     public void activate(){
         this.active = true;
@@ -76,5 +83,13 @@ public class User {
     }
     public void changeEmail(String email){
         this.email = email;
+    }
+
+    public void changeRole(Role role){
+        this.role = role;
+    }
+
+    public void changePhone(String phone){
+        this.phone = phone;
     }
 }

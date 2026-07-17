@@ -51,7 +51,7 @@ public class Product {
 
 
     @Setter //pick up later
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
 
@@ -66,14 +66,14 @@ public class Product {
     private boolean active;
 
     @CreationTimestamp
-    @Column (nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column (nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private List <ProductImage> images;
 
 

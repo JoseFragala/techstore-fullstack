@@ -60,7 +60,7 @@ Keeping them separated simplifies the business model.
 
 ## Decision
 
-Procut does not maintain collections of CartItems or OrderItems.
+Product does not maintain collections of CartItem or OrderItem.
 
 ## Rationale
 
@@ -74,11 +74,11 @@ The reverse navigation is unnecessary and would increase complexity without prov
 
 ## Decision
 
-Entities use automatic creation and update timestamps.
+Entities use automatic timestamps according to lifecycle needs instead of forcing the same auditing fields onto every entity.
 
 ## Rationale
 
-Audit information should be generated automatically to ensure consistency and reduce repetitive code.
+Audit information should be generated automatically, but immutable historical records do not need the same update semantics as mutable entities.
 
 ---
 
