@@ -90,5 +90,83 @@ Entities should gradually encapsulate business behavior instead of exposing unre
 
 ## Rationale
 
-Methods such as activate(), deactivate(), or chagePassword() express business intent more clearly than generic setters and help protect the integrity of domain model. 
+Methods such as activate(), deactivate(), chagePassword(), changePhone(), changeEmail(), etc. express business intent more clearly than generic setters and help protect the integrity of domain model. 
+
+# 008 - Default Fetch Strategy
+
+## Decision
+
+The project keeps Hibernate's default fetch strategies.
+
+ManyToOne - Eager
+OneToMany - Lazy
+OneToOne - Eager
+
+## Rationale
+
+Current project size does not justify overriding the defaults.
+
+# 009 - Cascade Usage
+
+## Decision 
+
+CascadeType.All is only used when the parent entity owns the complete lifecycle of the child entity.
+
+currently used on:
+
+- Cart -> CartItem
+- Order -> OrderItem
+- Product -> ProductImage
+
+## Rationale
+
+Those child entities have no meaning wihtout their parent.
+Deleting the parent should also delete its owned childre.
+
+Not used on
+- User -> Order
+- CartItem -> Product
+- OrderItem -> Product
+- User -> Role
+
+
+## Rationale
+
+These entities have independent lifecycles and should never be deleted automatically.
+
+# 010 - Orphan Removal
+
+## Decision
+
+orpanRemoval = true is used together with CascadeType.ALL for aggregate-owned child collections. 
+
+## Rationale
+
+Removing a child from the parent's collection should permanently remove it from the datavase. 
+
+
+
+# 011 - Aggregate Ownership
+
+## Decision
+
+Some entities are treated ass aggregate roots.
+
+# 012 - CartItem does not store product price
+
+## Decision 
+
+CartItem stores only:
+- Prduct
+- Quantity
+
+it does not store the product price. 
+
+## Rationale
+
+The shopping cart should always reflect the current product price.
+
+
+
+
 
