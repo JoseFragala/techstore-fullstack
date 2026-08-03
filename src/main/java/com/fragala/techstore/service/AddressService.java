@@ -36,9 +36,27 @@ public class AddressService {
         address.setState(request.getState());
         address.setZipCode(request.getZipCode());
         address.setCountry(request.getCountry());
-        address.setDefault(request.getIsDefault());
+        address.setDefaultAddress(request.getDefaultAddress());
 
         address.setUser(user);
+
+        address = addressRepository.save(address);
+
+        return new AddressResponse(
+                address.getId(),
+                address.getName(),
+                address.getStreet(),
+                address.getNumber(),
+                address.getComplement(),
+                address.getNeighborhood(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.isDefaultAddress()
+
+        );
+
 
 
 

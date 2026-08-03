@@ -43,6 +43,7 @@ public class Address {
 @ManyToOne
 // `@JoinColumn` defines the foreign key column stored in this table.
 // This entity owns the relationship because the `user_id` column lives in the `addresses` table.
+@Setter
 @JoinColumn(name = "user_id", nullable = false)
 private User user;
 
@@ -95,7 +96,7 @@ private String country;
 
 @Column (name = "is_default", nullable = false)
 @Setter
-private boolean isDefault;
+private boolean defaultAddress;
 
 // `@CreationTimestamp` lets Hibernate fill this field automatically when the row is first inserted.
 @CreationTimestamp

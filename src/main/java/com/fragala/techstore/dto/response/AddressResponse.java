@@ -25,7 +25,7 @@ public class AddressResponse {
 
     private String country;
 
-    private Boolean isDefault;
+    private Boolean defaultAddress;
 
     public AddressResponse(
         Long id,
@@ -38,7 +38,7 @@ public class AddressResponse {
         String state,
         String zipCode,
         String country,
-        Boolean isDefault){
+        Boolean defaultAddress){
     
     this.id = id; 
     this.name = name;
@@ -50,7 +50,7 @@ public class AddressResponse {
     this.state = state;
     this.zipCode = zipCode;
     this.country = country;
-    this.isDefault = isDefault;
+    this.defaultAddress = defaultAddress;
         }
 }
 

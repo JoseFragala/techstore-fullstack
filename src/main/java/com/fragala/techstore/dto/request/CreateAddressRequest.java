@@ -21,7 +21,7 @@ public class CreateAddressRequest {
     private String state;
     private String zipCode;
     private String country;
-    private Boolean isDefault;
+    private Boolean defaultAddress;
     private Long userId;
     
 }

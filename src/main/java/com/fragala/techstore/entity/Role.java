@@ -46,7 +46,27 @@ public class Role {
     @Column(nullable = false, unique = true)
     private String name;
 
+    // The description explains the business meaning of the role in a human-readable way.
+    @Setter
+    @Column(nullable = false)
+    private String description;
+
+    // Hibernate fills this timestamp automatically when the role row is first inserted.
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    /**
+     * Creates a new role with the required business fields.
+     *
+     * <p>This constructor is useful when the application needs to create predefined system roles
+     * such as ADMIN, CUSTOMER, and SELLER during startup.
+     *
+     * @param name the unique role name stored in the database
+     * @param description a short explanation of the role's purpose
+     */
+    public Role(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }
