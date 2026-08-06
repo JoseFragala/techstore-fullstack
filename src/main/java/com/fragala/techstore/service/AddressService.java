@@ -1,5 +1,8 @@
 package com.fragala.techstore.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.fragala.techstore.repository.AddressRepository;
@@ -56,11 +59,37 @@ public class AddressService {
                 address.isDefaultAddress()
 
         );
+     }
 
 
+    public List<AddressResponse> findAll(){
+
+        List<Address> addresses = addressRepository.findAll();
+
+        List<AddressResponse> responses = new ArrayList<>();
+
+        for (Address address: addresses){
+
+            AddressResponse response = new AddressResponse(
+                address.getId(),
+                address.getName(),
+                address.getStreet(),
+                address.getNumber(),
+                address.getComplement(),
+                address.getNeighborhood(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.isDefaultAddress()
+            );
+
+            responses.add(response);
+        }
+        return responses;
 
 
     }
+
+
 }
-
-
