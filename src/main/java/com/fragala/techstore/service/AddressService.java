@@ -2,14 +2,20 @@ package com.fragala.techstore.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.fragala.techstore.repository.AddressRepository;
 import com.fragala.techstore.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.fragala.techstore.dto.request.CreateAddressRequest;
+import com.fragala.techstore.dto.request.UpdateAddressRequest;
 import com.fragala.techstore.dto.response.AddressResponse;
 import com.fragala.techstore.entity.User;
+import com.fragala.techstore.exception.ResourceNotFoundException;
 import com.fragala.techstore.entity.Address;
 import com.fragala.techstore.mapper.AddressMapper;
 
@@ -29,7 +35,7 @@ public class AddressService {
     public AddressResponse create(CreateAddressRequest request){
 
         User user = userRepository.findById(request.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         Address address = addressMapper.toEntity(request);
 
@@ -55,10 +61,41 @@ public class AddressService {
     }
     public AddressResponse findById(Long id){
         Address address = addressRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Address not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
 
         return addressMapper.toResponse(address);
     }
+
+    @Transactional
+    public AddressResponse update(Long id, UpdateAddressRequest request){
+
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+
+        if (request.getDefaultAddress()) {
+
+            Optional<Address> currentDefault = 
+                addressRepository.findByUser_IdAndDefaultAddressTrue(
+                        address.getUser().getId());
+                
+                if (currentDefault.isPresent()
+                    && !currentDefault.get().getId().equals(address.getId())) {
+                
+                Address oldDefault = currentDefault.get();
+
+                oldDefault.setDefaultAddress(false);
+
+                addressRepository.saveAndFlush(oldDefault); // save it and immediately synchronize this change with the database.
+                    }
+        }
+
+        addressMapper.updateEntity(address, request);
+
+        address = addressRepository.save(address);
+
+        return addressMapper.toResponse(address);
+    }
+
     
     }
 

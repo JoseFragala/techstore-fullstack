@@ -7,11 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fragala.techstore.dto.request.CreateAddressRequest;
+import com.fragala.techstore.dto.request.UpdateAddressRequest;
 import com.fragala.techstore.dto.response.AddressResponse;
 import com.fragala.techstore.service.AddressService;
 
@@ -50,6 +52,18 @@ public class AddressController {
         return ResponseEntity.ok(response);
 
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<AddressResponse> update(
+        @PathVariable Long id,
+        @RequestBody UpdateAddressRequest request) {
+
+            AddressResponse response = addressService.update(id, request);
+
+            return ResponseEntity.ok(response);
+
+        }
+    
+
 
 
 

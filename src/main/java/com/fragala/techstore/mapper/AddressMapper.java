@@ -3,6 +3,7 @@ package com.fragala.techstore.mapper;
 import org.springframework.stereotype.Component;
 
 import com.fragala.techstore.dto.request.CreateAddressRequest;
+import com.fragala.techstore.dto.request.UpdateAddressRequest;
 import com.fragala.techstore.dto.response.AddressResponse;
 import com.fragala.techstore.entity.Address;
 
@@ -41,6 +42,19 @@ public class AddressMapper {
                 address.setDefaultAddress(request.getDefaultAddress());
 
                 return address;
+        }
+
+        public void updateEntity (Address address, UpdateAddressRequest request){
+                address.setName(request.getName());
+                address.setStreet(request.getStreet());
+                address.setNumber(request.getNumber());
+                address.setComplement(request.getComplement());
+                address.setNeighborhood(request.getNeighborhood());
+                address.setCity(request.getCity());
+                address.setState(request.getState());
+                address.setZipCode(request.getZipCode());
+                address.setCountry(request.getCountry());
+                address.setDefaultAddress(request.getDefaultAddress());
         }
 }
 
