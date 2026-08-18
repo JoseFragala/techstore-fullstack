@@ -96,6 +96,14 @@ public class AddressService {
         return addressMapper.toResponse(address);
     }
 
+    public void delete (Long id) {
+
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+
+        addressRepository.delete(address);
+    }
+
     
     }
 

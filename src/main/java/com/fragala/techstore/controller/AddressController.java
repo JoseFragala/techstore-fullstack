@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,8 @@ import com.fragala.techstore.dto.request.UpdateAddressRequest;
 import com.fragala.techstore.dto.response.AddressResponse;
 import com.fragala.techstore.service.AddressService;
 
+import jakarta.validation.Valid;
+
 @RestController // responsible for receiving HTTP request and returning HTTP response
 @RequestMapping("/addresses")
 public class AddressController {
@@ -28,7 +31,7 @@ public class AddressController {
     }
 
     @PostMapping
-    public ResponseEntity<AddressResponse> create(@RequestBody CreateAddressRequest request){
+    public ResponseEntity<AddressResponse> create(@Valid @RequestBody CreateAddressRequest request){
 
         AddressResponse response = addressService.create(request);
 
@@ -55,13 +58,20 @@ public class AddressController {
     @PutMapping("/{id}")
     public ResponseEntity<AddressResponse> update(
         @PathVariable Long id,
-        @RequestBody UpdateAddressRequest request) {
+        @Valid @RequestBody UpdateAddressRequest request) {
 
             AddressResponse response = addressService.update(id, request);
 
             return ResponseEntity.ok(response);
 
         }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+
+        addressService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
     
 
 
