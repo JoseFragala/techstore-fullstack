@@ -41,6 +41,20 @@ public class AddressService {
 
         address.setUser(user);
 
+        if (request.getDefaultAddress()) {
+
+            Optional<Address> currentDefault = 
+                addressRepository.findByUser_IdAndDefaultAddressTrue(
+                    address.getUser().getId());
+
+            if (currentDefault.isPresent()) {
+                Address oldDefault = currentDefault.get();
+                oldDefault.setDefaultAddress(false);
+
+                addressRepository.saveAndFlush(oldDefault);
+            }
+        }       
+
         address = addressRepository.save(address);
 
         return addressMapper.toResponse(address);

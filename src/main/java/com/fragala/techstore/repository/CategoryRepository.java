@@ -17,5 +17,7 @@ import com.fragala.techstore.entity.Category;
  * {@code findById}, {@code findAll}, {@code deleteById}, and pagination support.
  */
 public interface CategoryRepository extends JpaRepository <Category, Long> {
+
+    boolean existsByName(String name);
     
 }

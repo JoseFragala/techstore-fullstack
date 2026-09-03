@@ -1,6 +1,8 @@
 package com.fragala.techstore.dto.request;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,7 +12,9 @@ import jakarta.validation.constraints.NotNull;
  * CreateAddressRequest
  */
 @Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateAddressRequest {
 
     @NotBlank   

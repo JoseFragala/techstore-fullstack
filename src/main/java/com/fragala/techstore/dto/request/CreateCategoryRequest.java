@@ -1,5 +1,10 @@
 package com.fragala.techstore.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * Request DTO used to receive the data required to create a category.
  *
@@ -13,21 +18,15 @@ package com.fragala.techstore.dto.request;
  *
  * <p>This DTO is used when a client sends data to create a new category.
  */
+@Getter
+@Setter
+@NoArgsConstructor
 public class CreateCategoryRequest {
 
     // Request DTOs usually contain only the fields the client is allowed to send.
     // That keeps the API contract focused and avoids accidental exposure of entity details.
+    @NotBlank
     private String name;
-
-    /**
-     * Returns the category name sent by the client.
-     *
-     * @return the category name requested for creation
-     */
-    public String getName(){
-        return name;
-    }
-
 
     
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO used when the client wants to update an existing address.
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
  * UpdateAddressRequest
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateAddressRequest {

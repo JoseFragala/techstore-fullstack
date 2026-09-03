@@ -25,7 +25,7 @@ public class AddressResponse {
 
     private String country;
 
-    private Boolean defaultAddress;
+    private boolean defaultAddress;
 
     public AddressResponse(
         Long id,

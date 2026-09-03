@@ -94,6 +94,151 @@ public class AddressServiceTest {
         () -> addressService.findById(999L)
     );
     }
+    @Test // Test the default-address business rule
+    void shouldChangePreviousDefaultAddressWhenCreatingToDefault(){
+
+        //GIVEN 
+
+        User user = mock(User.class);
+
+        when(user.getId()).thenReturn(2L);
+
+            CreateAddressRequest request = new CreateAddressRequest(
+                "Home",
+                "Main Street",
+                "100",
+                "Apartment 5",
+                "Downtown",
+                "New York",
+                "NY",
+                "10001",
+                "USA",
+                true,
+                2L
+    );
+
+        Address address = new Address();
+
+        when(userRepository.findById(2L))
+            .thenReturn(Optional.of(user));
+
+        when(addressMapper.toEntity(request))
+                .thenReturn(address);
+
+
+        Address oldDefault = mock(Address.class);
+
+       
+        when(addressRepository.findByUser_IdAndDefaultAddressTrue(2L))
+                .thenReturn(Optional.of(oldDefault));
+
+    
+
+    AddressResponse response = new AddressResponse(
+             2L,
+            "Home",
+            "Main Street",
+            "100",
+            "Apartment 5",
+            "Downtown",
+            "New York",
+            "NY",
+            "10001",
+            "USA",
+            true
+    );
+
+        when(addressRepository.save(address))
+            .thenReturn(address);
+        
+        when(addressMapper.toResponse(address))
+            .thenReturn(response);
+
+    // WHEN
+    AddressResponse result = addressService.create(request);
+
+    //THEN
+    
+    verify(oldDefault).setDefaultAddress(false);
+
+    verify(addressRepository).saveAndFlush(oldDefault);
+    
+    verify(addressRepository).save(address);
+
+    assertEquals(response, result);
+
+
+    }
+
+    @Test
+    void shouldCreateDefaultAddressWhenUserHasNoDefaultAddress() {
+
+    // GIVEN
+
+    User user = mock(User.class);
+
+    when(user.getId()).thenReturn(2L);
+
+    CreateAddressRequest request = new CreateAddressRequest(
+            "Home",
+            "Main Street",
+            "100",
+            "Apartment 5",
+            "Downtown",
+            "New York",
+            "NY",
+            "10001",
+            "USA",
+            true,
+            2L
+    );
+
+    Address address = new Address();
+
+    when(userRepository.findById(2L))
+            .thenReturn(Optional.of(user));
+
+    when(addressMapper.toEntity(request))
+            .thenReturn(address);
+
+    // User has no current default address
+    when(addressRepository.findByUser_IdAndDefaultAddressTrue(2L))
+            .thenReturn(Optional.empty());
+
+    AddressResponse response = new AddressResponse(
+            2L,
+            "Home",
+            "Main Street",
+            "100",
+            "Apartment 5",
+            "Downtown",
+            "New York",
+            "NY",
+            "10001",
+            "USA",
+            true
+    );
+
+    when(addressRepository.save(address))
+            .thenReturn(address);
+
+    when(addressMapper.toResponse(address))
+            .thenReturn(response);
+
+
+    // WHEN
+
+    AddressResponse result = addressService.create(request);
+
+
+    // THEN
+
+    verify(addressRepository).save(address);
+
+    verify(addressRepository, never()).saveAndFlush(any(Address.class));
+
+    assertEquals(response, result);
+}
 
     @Test // Test the default-address business rule
     void shouldChangePreviousDefaultAddressWhenUpdatingToDefault(){
