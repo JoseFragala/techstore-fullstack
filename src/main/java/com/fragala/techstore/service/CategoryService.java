@@ -1,11 +1,15 @@
 package com.fragala.techstore.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.fragala.techstore.dto.request.CreateCategoryRequest;
+import com.fragala.techstore.dto.request.UpdateCategoryRequest;
 import com.fragala.techstore.dto.response.CategoryResponse;
 import com.fragala.techstore.entity.Category;
 import com.fragala.techstore.exception.CategoryAlreadyExistsException;
+import com.fragala.techstore.exception.ResourceNotFoundException;
 import com.fragala.techstore.repository.CategoryRepository;
 
 /**
@@ -48,7 +52,55 @@ public class CategoryService {
             savedCategory.getName()
         );
         
+    }
+
+    public CategoryResponse update(Long id, UpdateCategoryRequest request){
+
+        if(categoryRepository.existsByNameAndIdNot(request.getName(), id)){
+            throw new CategoryAlreadyExistsException("This category already exists");
+        }
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        category.setName(request.getName());
+        Category savedCategory = categoryRepository.save(category);
+
+        return new CategoryResponse(
+            savedCategory.getId(),
+            savedCategory.getName()
+        );
+    }
+    
+    public CategoryResponse findById(Long id) {
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         
+        return new CategoryResponse(
+            category.getId(),
+            category.getName()
+        );
+    }
+
+    public List<CategoryResponse> findAll() {
+
+        return categoryRepository.findAll()
+            .stream()
+            .map(category -> new CategoryResponse(
+                category.getId(),
+                category.getName()
+
+            ))
+            .toList();
+    }
+
+    public void delete(Long id){
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        
+        categoryRepository.delete(category);
+
     }
             
     }
