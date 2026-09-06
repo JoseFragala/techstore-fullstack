@@ -10,6 +10,7 @@ import com.fragala.techstore.dto.response.CategoryResponse;
 import com.fragala.techstore.entity.Category;
 import com.fragala.techstore.exception.CategoryAlreadyExistsException;
 import com.fragala.techstore.exception.ResourceNotFoundException;
+import com.fragala.techstore.mapper.CategoryMapper;
 import com.fragala.techstore.repository.CategoryRepository;
 
 /**
@@ -32,9 +33,11 @@ import com.fragala.techstore.repository.CategoryRepository;
 public class CategoryService {
     
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
+        this.categoryMapper = categoryMapper;
     }
 
     public CategoryResponse create(CreateCategoryRequest request){
@@ -47,10 +50,7 @@ public class CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-        return new CategoryResponse(
-            savedCategory.getId(),
-            savedCategory.getName()
-        );
+        return categoryMapper.toResponse(savedCategory);
         
     }
 
@@ -63,12 +63,10 @@ public class CategoryService {
             .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         category.setName(request.getName());
+
         Category savedCategory = categoryRepository.save(category);
 
-        return new CategoryResponse(
-            savedCategory.getId(),
-            savedCategory.getName()
-        );
+        return categoryMapper.toResponse(savedCategory);
     }
     
     public CategoryResponse findById(Long id) {
@@ -76,21 +74,14 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         
-        return new CategoryResponse(
-            category.getId(),
-            category.getName()
-        );
+        return categoryMapper.toResponse(category);
     }
 
     public List<CategoryResponse> findAll() {
 
         return categoryRepository.findAll()
             .stream()
-            .map(category -> new CategoryResponse(
-                category.getId(),
-                category.getName()
-
-            ))
+            .map(categoryMapper::toResponse)
             .toList();
     }
 

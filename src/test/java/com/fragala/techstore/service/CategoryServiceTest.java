@@ -21,6 +21,7 @@ import com.fragala.techstore.dto.response.CategoryResponse;
 import com.fragala.techstore.entity.Category;
 import com.fragala.techstore.exception.CategoryAlreadyExistsException;
 import com.fragala.techstore.exception.ResourceNotFoundException;
+import com.fragala.techstore.mapper.CategoryMapper;
 import com.fragala.techstore.repository.CategoryRepository;
 
 public class CategoryServiceTest {
@@ -28,13 +29,18 @@ public class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private CategoryMapper categoryMapper;
+
     private CategoryService categoryService;
+
+
 
     @BeforeEach()
     void setUp(){
         MockitoAnnotations.openMocks(this);
 
-        categoryService = new CategoryService(categoryRepository);
+        categoryService = new CategoryService(categoryRepository, categoryMapper);
     }
 
     @Test // Category name Already Exist , should throw exception and never call the methods
@@ -56,31 +62,36 @@ public class CategoryServiceTest {
     @Test // Category Name dont exist - can create the category.
     void create_shouldCreateCategory_whenNameDoesNotExist() {
 
-        // GIVEN
+    // GIVEN
 
-        CreateCategoryRequest request = new CreateCategoryRequest();
-        request.setName("Laptops");
+    CreateCategoryRequest request = new CreateCategoryRequest();
+    request.setName("Laptops");
 
-        when(categoryRepository.existsByName(request.getName()))
-                .thenReturn(false);
+    when(categoryRepository.existsByName(request.getName()))
+            .thenReturn(false);
 
-        when(categoryRepository.save(any(Category.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    when(categoryRepository.save(any(Category.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
-        //WHEN
-        CategoryResponse response = categoryService.create(request);
+    CategoryResponse expectedResponse =
+            new CategoryResponse(1L, "Laptops");
 
-        //THEN
+    when(categoryMapper.toResponse(any(Category.class)))
+            .thenReturn(expectedResponse);
 
-        assertEquals("Laptops", response.getName());
+    // WHEN
 
+    CategoryResponse response = categoryService.create(request);
 
-        verify(categoryRepository).save(any(Category.class));
+    // THEN
 
-    }
+    assertEquals("Laptops", response.getName());
+
+    verify(categoryRepository).save(any(Category.class));
+}
 
     @Test // Successfully updated
-    void update_shouldUpdateCategory_whenCategoryExistsAndNameIsAvailable(){
+    void update_shouldUpdateCategory_whenCategoryExistsAndNameIsAvailable() {
 
         Long id = 1L;
 
@@ -91,20 +102,29 @@ public class CategoryServiceTest {
         category.setName("Computers");
 
         when(categoryRepository.existsByNameAndIdNot(request.getName(), id))
-            .thenReturn(false);
+                .thenReturn(false);
 
         when(categoryRepository.findById(id))
-            .thenReturn(Optional.of(category));
-        
+                .thenReturn(Optional.of(category));
+
         when(categoryRepository.save(any(Category.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        CategoryResponse expectedResponse =
+                new CategoryResponse(1L, "Laptops");
+
+        when(categoryMapper.toResponse(any(Category.class)))
+                .thenReturn(expectedResponse);
+
+        // WHEN
 
         CategoryResponse response = categoryService.update(id, request);
+
+        // THEN
 
         assertEquals("Laptops", response.getName());
 
         verify(categoryRepository).save(category);
-        
     }
     @Test // Id not found
     void update_shouldThrowException_whenCategoryDoesNotExist(){
@@ -150,9 +170,9 @@ public class CategoryServiceTest {
     }
 
     @Test // Category found
-    void findById_shouldReturnCategory_whenCategoryExists(){
+    void findById_shouldReturnCategory_whenCategoryExists() {
 
-         Long id = 1L;
+            Long id = 1L;
 
             Category category = new Category();
             category.setName("Laptops");
@@ -160,12 +180,22 @@ public class CategoryServiceTest {
             when(categoryRepository.findById(id))
                     .thenReturn(Optional.of(category));
 
+            CategoryResponse expectedResponse =
+                    new CategoryResponse(1L, "Laptops");
+
+            when(categoryMapper.toResponse(category))
+                    .thenReturn(expectedResponse);
+
+            // WHEN
+
             CategoryResponse response = categoryService.findById(id);
+
+            // THEN
 
             assertEquals("Laptops", response.getName());
 
             verify(categoryRepository).findById(id);
-    }
+        }
 
     @Test // CategoryNotfound 
     void findById_shouldThrowException_whenCategoryDoesNotExist() {
@@ -193,7 +223,23 @@ public class CategoryServiceTest {
                 when(categoryRepository.findAll())
                         .thenReturn(List.of(category1, category2));
 
+                CategoryResponse response1 =
+                        new CategoryResponse(1L, "Laptops");
+
+                CategoryResponse response2 =
+                        new CategoryResponse(2L, "Smartphones");
+
+                when(categoryMapper.toResponse(category1))
+                        .thenReturn(response1);
+
+                when(categoryMapper.toResponse(category2))
+                        .thenReturn(response2);
+
+                // WHEN
+
                 List<CategoryResponse> response = categoryService.findAll();
+
+                // THEN
 
                 assertEquals(2, response.size());
                 assertEquals("Laptops", response.get(0).getName());
@@ -201,7 +247,6 @@ public class CategoryServiceTest {
 
                 verify(categoryRepository).findAll();
             }
-
 
         @Test // empty list
         void findAll_shouldReturnEmptyList_whenNoCategoriesExist() {
