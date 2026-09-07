@@ -18,5 +18,9 @@ import com.fragala.techstore.entity.Brand;
  * {@code existsById}.
  */
 public interface BrandRepository extends JpaRepository <Brand, Long> {
+
+    boolean existsByName(String name);
+    
+    boolean existsByNameAndIdNot(String name, Long id);
     
 }

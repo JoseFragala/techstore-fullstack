@@ -64,6 +64,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(error);
     }
+         @ExceptionHandler(BrandAlreadyExistsException.class)
+        public ResponseEntity<ApiError> handleBrandAlreadyExists(BrandAlreadyExistsException exception){
+        
+        ApiError error =  new ApiError(
+            HttpStatus.CONFLICT.value(),
+            exception.getMessage()
+        );
+        
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
     
     
 }
