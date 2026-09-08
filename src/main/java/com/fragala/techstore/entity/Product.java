@@ -2,6 +2,7 @@ package com.fragala.techstore.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -101,7 +102,36 @@ public class Product {
     // `cascade = CascadeType.ALL` keeps image persistence operations aligned with the parent product.
     // `orphanRemoval = true` deletes image rows that are removed from the collection.
     @OneToMany(mappedBy = "product", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-    private List <ProductImage> images;
+    private List <ProductImage> images = new ArrayList<>();
+
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(ProductImage image){
+        images.remove(image);
+        image.setProduct(null);
+    }
+
+    public Product(
+        String name,
+        String description,
+        Brand brand,
+        Category category,
+        BigDecimal price,
+        String sku,
+        Integer stock){
+
+            this.name = name;
+            this.description = description;
+            this.brand = brand;
+            this.category = category;
+            this.price = price;
+            this.sku = sku;
+            this.stock = stock;
+            this.active = true;
+        }
 
 
     

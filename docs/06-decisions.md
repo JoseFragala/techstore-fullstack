@@ -167,6 +167,31 @@ it does not store the product price.
 The shopping cart should always reflect the current product price.
 
 
+# 013 - No dedicated undo operation
+
+## Decision
+
+The system does not provide a dedicated undo operation.
+
+If incorrect data is created, it should be corrected through the appropriate update operation.
+
+## Rationale
+
+A separate undo mechanism would add unnecessary complexity when the existing update operation is sufficient to correct the data.
+
+# 014 - Deletion depends on historical data
+
+## Decision
+
+A record can be physically deleted only when it has no historical data that depends on it.
+
+If historical data exists, the record must be deactivated instead of physically deleted.
+
+## Rationale
+
+Historical records must remain consistent and preserve the history of the e-commerce system.
+
+
 
 
 

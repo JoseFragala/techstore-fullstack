@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * JPA entity that represents an image associated with a product.
@@ -44,14 +45,20 @@ public class ProductImage {
     private Product product;
 
     // Stores the location of the image asset that should be displayed for the product.
+    @Setter 
     @Column(nullable = false)
     private String imageUrl;
 
     // Defines the presentation order so the UI can show images consistently.
     @Column(nullable = false) //order to show the images.
+    @Setter 
     private Integer displayOrder;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public void setProduct(Product product){
+        this.product = product;
+    }
 }
