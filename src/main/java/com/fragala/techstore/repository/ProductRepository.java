@@ -18,5 +18,8 @@ import com.fragala.techstore.entity.Product;
  * pagination support.
  */
 public interface ProductRepository extends JpaRepository <Product, Long> {
+
+    boolean existsBySku(String sku);
+    
     
 }

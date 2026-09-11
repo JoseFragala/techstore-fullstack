@@ -191,7 +191,105 @@ If historical data exists, the record must be deactivated instead of physically 
 
 Historical records must remain consistent and preserve the history of the e-commerce system.
 
+# 015 - Product References Brand and Category by ID in Requests
+
+## Decision
+
+CreateProductRequest and UpdateProductRequest receive `brandId` and `categoryId` instead of complete Brand or Category objects.
+
+## Rationale
+
+The client only needs to identify which existing Brand and Category should be associated with the Product.
+
+The Service is responsible for resolving these IDs into existing entities before creating or updating the Product.
+
+This keeps the API request simple and avoids exposing persistence entities directly through request DTOs.
 
 
+# 016 - Product Has a Maximum of Four Images
 
+## Decision
+
+A Product can have a maximum of four ProductImages.
+
+## Rationale
+
+The image limit is a business rule of the Product.
+
+The Service validates this rule during Product creation before persisting the Product.
+
+Keeping this validation in the Service also ensures that the rule is not dependent only on HTTP request validation.
+
+# 017 - Active State Is Controlled Through Domain Methods
+
+## Decision
+
+The Product active state is not exposed through a public setter.
+
+The Product provides `activate()` and `deactivate()` methods to change its active state.
+
+## Rationale
+
+`active` represents business state rather than simple data.
+
+Methods such as `activate()` and `deactivate()` express business intent more clearly than generic setters and prevent unrestricted modification of the state.
+
+This follows the Rich Domain Model principle already adopted by the project.
+
+# 018 - Product Activation and Deactivation Use Explicit API Operations
+
+## Decision
+
+Product activation and deactivation are exposed through dedicated PATCH endpoints:
+
+PATCH /products/{id}/activate
+
+PATCH /products/{id}/deactivate
+
+## Rationale
+
+Activation and deactivation represent explicit state transitions rather than general Product updates.
+
+Dedicated operations make the intent of the API request clear and prevent the client from directly manipulating the `active` field.
+
+Successful operations return HTTP 204 No Content.
+
+# 025 - Product Deletion Depends on Existing References
+
+## Decision
+
+A Product can be physically deleted only when it has no references from CartItem or OrderItem.
+
+If either reference exists, the Product is deactivated instead of physically deleted.
+
+## Rationale
+
+CartItem and OrderItem reference Product through mandatory relationships.
+
+OrderItem also represents historical purchase information, so deleting a referenced Product could compromise the integrity of existing data.
+
+When references exist, deactivation preserves the Product record while preventing it from being treated as an active catalog item.
+
+# 028 - ProductImage Lifecycle Is Owned by Product
+
+## Decision
+
+ProductImage is treated as a lifecycle-owned child of Product.
+
+Product uses:
+
+CascadeType.ALL
+
+and:
+
+orphanRemoval = true
+
+
+## Rationale
+
+A ProductImage has no independent business meaning outside its Product.
+
+Therefore, Product controls the persistence lifecycle of its images.
+
+Adding or removing images through the Product aggregate keeps the relationship synchronized and allows orphaned images to be removed automatically.
 
