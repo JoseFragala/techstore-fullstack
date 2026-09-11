@@ -254,7 +254,7 @@ Dedicated operations make the intent of the API request clear and prevent the cl
 
 Successful operations return HTTP 204 No Content.
 
-# 025 - Product Deletion Depends on Existing References
+# 019 - Product Deletion Depends on Existing References
 
 ## Decision
 
@@ -270,7 +270,7 @@ OrderItem also represents historical purchase information, so deleting a referen
 
 When references exist, deactivation preserves the Product record while preventing it from being treated as an active catalog item.
 
-# 028 - ProductImage Lifecycle Is Owned by Product
+# 020 - ProductImage Lifecycle Is Owned by Product
 
 ## Decision
 
@@ -292,4 +292,48 @@ A ProductImage has no independent business meaning outside its Product.
 Therefore, Product controls the persistence lifecycle of its images.
 
 Adding or removing images through the Product aggregate keeps the relationship synchronized and allows orphaned images to be removed automatically.
+
+# 021 - Roles Are System-Defined
+
+## Decision
+
+User roles are predefined and controlled by the application.
+
+The system currently provides the following roles:
+
+- ADMIN;
+- CUSTOMER;
+- SELLER.
+
+Roles are created automatically during application startup by the RoleDataInitializer.
+
+Users can be associated with an existing role, but roles are not created dynamically trough the  public API.
+
+
+## Rationale
+
+Roles define authorization concepts used by the application and are part of the system's security model.
+
+Allowing clients to create arbitrary roles through the API could introduce authorization concepts that are not 
+recognized or properly handled by the application. 
+
+Keeping roles System-defined ensures that the available authorization roles remain controlled by the application and
+provides a stable foundation for future authentication and authorization. 
+
+# 022 - Roles Are Not Deleted Through the Public API
+
+## Decision
+
+Roles cannot be physically deleted or modified through the public API.
+
+the role api is read-only and only exposes operations for retrieving exisitng roles.
+
+
+## Rationale
+Roles are referenced by users and represent part of the authorization model.
+
+Deleting or arbitrarily modifying a role could invalidate existing user associations and compromise the consistency of the authorization model.
+
+Because roles are system-defined, their lifecycle is controlled by the application rather than by regular API consumers.
+
 
