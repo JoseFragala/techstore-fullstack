@@ -1,5 +1,9 @@
 # PROJECT_CONTEXT
 
+> Historical snapshot: the analysis below predates the current implementation.
+> For the verified October 18, 2026 status, consult `05-roadmap.md` and
+> `08-security.md`. The original snapshot is preserved for context.
+
 ## 1. Project Overview
 
 ### Project Name

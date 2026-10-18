@@ -9,6 +9,7 @@ From the repository root on Windows:
 ```powershell
 docker compose -f docker-compose.test.yml up -d --wait
 .\mvnw.cmd "-Dtest=AddressServiceIntegrationTest" test
+.\mvnw.cmd "-Dtest=UserServiceIntegrationTest" test
 .\mvnw.cmd "-Dspring.profiles.active=test" test
 ```
 
@@ -23,6 +24,11 @@ absence of the new address. A second scenario verifies successful replacement.
 The test removes only its own addresses and user; system roles are preserved.
 Do not annotate this test class with `@Transactional`: an enclosing test
 transaction could hide a missing transaction on the service.
+
+`UserServiceIntegrationTest` calls the real user service and reloads the user
+after committed creation and password changes. It checks that the stored values
+are hashes, that the new password matches, and that the previous password stops
+matching after a change. It removes only its own test user afterward.
 
 The database uses temporary container storage. Its contents disappear when the
 container stops. Stop it after testing with:

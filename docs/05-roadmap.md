@@ -6,7 +6,7 @@ This document tracks the implementation progress of TechStore based on the curre
 
 It is intended to remain a high-level development guide. It preserves completed work, highlights what is partially implemented, and organizes the remaining backend work in a practical order that respects the current architecture.
 
-Last updated from repository analysis and GitHub Project sync: July 29, 2026.
+Last updated from local source and tests: October 18, 2026. GitHub Project status was not synchronized during this update.
 
 ---
 
@@ -72,15 +72,15 @@ Establish a reliable persistence layer that reflects the current domain model an
 
 ## Current Status
 
-`Partially completed`
+`Completed`
 
-The repository already includes most of the planned Spring Data repositories, but persistence coverage is not fully complete yet.
+All repositories listed in this milestone exist, including AddressRepository. This confirms repository availability, not complete persistence test coverage.
 
 ## Milestones
 
 ### Milestone 2.1 - Feature-Based Persistence
 
-- Current progress: `Partially completed`
+- Current progress: `Completed`
 - Dependencies:
   - Phase 1 - Domain Model
 - Expected deliverables:
@@ -88,13 +88,13 @@ The repository already includes most of the planned Spring Data repositories, bu
   - [x] `Brand Repository`
   - [x] `Product Repository`
   - [x] `User Repository`
-  - [ ] `Address Repository`
+  - [x] `Address Repository`
   - [x] `Cart Repository`
   - [x] `Order Repository`
 
 ## Remaining Work
 
-- Add the missing repository coverage required by the roadmap
+- Add persistence queries only when required by new use cases
 - Keep repository naming and scope aligned with the GitHub Project items
 - Review entity-to-schema consistency as persistence expands
 
@@ -124,7 +124,7 @@ Move from pure domain modeling into use-case implementation through service clas
 
 `Partially completed`
 
-The business layer has started with category creation and a placeholder user service, but the feature-based service roadmap is still mostly open.
+Category, brand, product, user, address, and read-only role services exist. Cart and order use cases remain unimplemented. Address default replacement has transactional rollback coverage.
 
 ## Milestones
 
@@ -135,17 +135,17 @@ The business layer has started with category creation and a placeholder user ser
   - Phase 2 - Persistence
 - Expected deliverables:
   - [x] `Category Service`
-  - [ ] `Brand Service`
-  - [ ] `Product Service`
-  - [ ] `User Service`
-  - [ ] `Address Service`
+  - [x] `Brand Service`
+  - [x] `Product Service`
+  - [x] `User Service`
+  - [x] `Address Service`
   - [ ] `Cart Service`
   - [ ] `Order Service`
 
 ## Remaining Work
 
-- Expand from the existing category slice into the rest of the service roadmap
-- Replace placeholders with implemented business workflows
+- Define cart business rules before implementing CartService, then plan order workflows
+- Preserve historical integrity when implementing order workflows
 - Keep controllers thin by centralizing use cases in services
 
 ## Learning Objectives
@@ -174,7 +174,7 @@ Expose the business layer through a clear REST API organized around the same fea
 
 `Partially completed`
 
-The category flow already has DTO groundwork, but none of the planned APIs are fully implemented yet.
+Category, brand, product, user, and address controllers expose DTO-based APIs. Roles have a read-only API. Authentication and authorization are still absent; API availability does not imply production readiness.
 
 ## Milestones
 
@@ -184,17 +184,17 @@ The category flow already has DTO groundwork, but none of the planned APIs are f
 - Dependencies:
   - Phase 3 - Business Layer
 - Expected deliverables:
-  - [ ] `Category API`
-  - [ ] `Brand API`
-  - [ ] `Product API`
-  - [ ] `User API`
-  - [ ] `Address API`
+  - [x] `Category API`
+  - [x] `Brand API`
+  - [x] `Product API`
+  - [x] `User API`
+  - [x] `Address API`
   - [ ] `Cart API`
   - [ ] `Order API`
 
 ## Remaining Work
 
-- Implement the first controller slice around the existing category flow
+- Add cart and order endpoints after their business rules and services are defined
 - Extend API coverage feature by feature across the roadmap
 - Keep DTO boundaries and response behavior consistent
 
@@ -222,27 +222,27 @@ Add a dedicated validation and error-handling phase between API and security so 
 
 ## Current Status
 
-`Not started`
+`Partially completed`
 
-No Bean Validation annotations, global exception handling, business exception layer, or standardized error response contract are implemented yet.
+Request DTOs use Bean Validation. GlobalExceptionHandler translates validation errors, missing resources, and category, brand, and user duplicates into ApiError responses. Some other failures still need explicit handling; coverage is partial.
 
 ## Milestones
 
 ### Milestone 5.1 - Feature-Based Validation
 
-- Current progress: `Not started`
+- Current progress: `Partially completed`
 - Dependencies:
   - Phase 4 - API
 - Expected deliverables:
-  - [ ] `Bean Validation`
-  - [ ] `Global Exception Handler`
-  - [ ] `Business Exceptions`
-  - [ ] `Error Response Standardization`
+  - [x] `Bean Validation`
+  - [x] `Global Exception Handler`
+  - [x] `Business Exceptions`
+  - [ ] `Error Response Standardization` (ApiError exists; complete remaining failure coverage)
 
 ## Remaining Work
 
-- Add request validation once the first APIs are in place
-- Define a consistent exception strategy for business and API failures
+- Extend existing request validation to new APIs
+- Complete explicit error translation for remaining business and unexpected failures
 - Standardize error payloads before introducing security flows
 
 ## Learning Objectives
@@ -269,15 +269,15 @@ Protect the API with authentication and authorization after the validation layer
 
 ## Current Status
 
-`Not started`
+`Partially completed`
 
-Security remains planned work. No Spring Security configuration, authentication endpoint, JWT flow, or authorization layer exists yet.
+Password hashing is implemented with spring-security-crypto and a PBKDF2 PasswordEncoder. No web security configuration, authentication endpoint, JWT flow, or authorization enforcement exists. The approved policy is public registration as CUSTOMER and role assignment only by authenticated ADMIN; current requests still accept roleId without enforcing that policy. See 08-security.md.
 
 ## Milestones
 
 ### Milestone 6.1 - Feature-Based Security
 
-- Current progress: `Not started`
+- Current progress: `Partially completed`
 - Dependencies:
   - Phase 5 - Validation
 - Expected deliverables:
@@ -285,13 +285,13 @@ Security remains planned work. No Spring Security configuration, authentication 
   - [ ] `Authentication API`
   - [ ] `JWT Authentication`
   - [ ] `Role Authorization`
-  - [ ] `Password Encryption`
+  - [x] `Password Hashing`
 
 ## Remaining Work
 
-- Introduce security after validation and error handling are consistent
+- Implement authentication and enforce the approved role assignment policy before use with real data
 - Align authentication design with the existing `User` and `Role` model
-- Protect endpoints without breaking the planned API contracts
+- Enforce role assignment on authenticated endpoints; plan legacy password resets or migration explicitly
 
 ## Learning Objectives
 
@@ -317,27 +317,27 @@ Build confidence in the backend through automated tests aligned with the reposit
 
 ## Current Status
 
-`Not started`
+`Partially completed`
 
-The repository contains only a Spring Boot context test, so the feature-based testing roadmap has not started yet.
+Service and MockMvc controller tests cover category, brand, product, role, address, and user modules. Address integration tests use a dedicated PostgreSQL database to verify rollback and successful default replacement. User integration tests verify persisted password hashes on creation and password changes. Password encoder tests exercise real hashing and password matching. Coverage is incremental, not exhaustive.
 
 ## Milestones
 
 ### Milestone 7.1 - Feature-Based Testing
 
-- Current progress: `Not started`
+- Current progress: `Partially completed`
 - Dependencies:
-  - Phase 6 - Security
+  - Implemented use cases in Phases 2 through 5 (tests accompany behavior changes)
 - Expected deliverables:
   - [ ] `Repository Tests`
-  - [ ] `Service Tests`
-  - [ ] `Controller Tests`
-  - [ ] `Integration Tests`
+  - [x] `Service Tests`
+  - [x] `Controller Tests`
+  - [x] `Integration Tests`
   - [ ] `Testcontainers`
 
 ## Remaining Work
 
-- Move beyond context startup checks into behavioral testing
+- Expand behavioral coverage as new use cases are implemented
 - Add tests incrementally alongside repositories, services, and APIs
 - Reduce manual environment dependency during test execution
 
@@ -421,8 +421,8 @@ These items remain part of the long-term product vision and stay outside the cur
 
 # Current Focus
 
-- Current phase: `Phase 2 - Persistence`
-- Current milestone: `Milestone 2.1 - Feature-Based Persistence`
-- Next implementation task: add the missing `Address Repository` to complete repository coverage before expanding the broader service roadmap
-- Next milestone: `Phase 3, Milestone 3.1 - Feature-Based Business Layer`
-- Overall project progress estimate: `25% to 30%`
+- Current phase: complete user testing and password storage, then define cart use cases
+- Current milestone: user module hardening and security planning
+- Next implementation task: plan authentication and enforcement of the approved role policy; define cart rules before cart implementation
+- Next milestone: cart service/API and authentication/authorization in explicitly scoped increments
+- Overall progress is tracked by verified deliverables; no percentage estimate is maintained

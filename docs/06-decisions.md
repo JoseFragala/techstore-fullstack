@@ -337,3 +337,46 @@ Deleting or arbitrarily modifying a role could invalidate existing user associat
 Because roles are system-defined, their lifecycle is controlled by the application rather than by regular API consumers.
 
 
+
+# 023 - Password Hashing at the Service Boundary
+
+## Decision
+
+UserService encodes raw passwords on creation and password changes through an
+injected PasswordEncoder. User.changePassword continues to receive a hash.
+PasswordConfig supplies a DelegatingPasswordEncoder with the named PBKDF2
+Spring Security 5.8 parameter set, a random salt, and an encoding identifier.
+Only spring-security-crypto is introduced; web authentication and authorization
+remain planned. See 08-security.md for pending role policy and legacy data work.
+
+## Rationale
+
+Centralizing encoding in the service prevents callers of the application use
+case from accidentally persisting raw passwords. A maintained crypto module
+avoids custom cryptographic code. The encoding prefix identifies the algorithm
+and parameters for later verification and controlled upgrades. Existing
+passwords are not silently modified or accepted as plaintext fallbacks.
+
+# 024 - Public Registration and Administrative Role Assignment
+
+## Decision
+
+Approved by the project owner on October 18, 2026:
+
+- Public registration assigns CUSTOMER on the server.
+- Only an authenticated ADMIN can assign or change user roles.
+- Public registration and profile updates must not accept roleId in the target API.
+- Administrative role assignment will use a separate protected operation.
+
+## Implementation Status
+
+Planned, not enforced. The current create and update requests still accept
+roleId. Implement contract changes and authorization with the authentication
+work; password hashing alone does not protect these endpoints. Initial ADMIN
+provisioning and ownership rules for profile updates still require definition.
+
+## Rationale
+
+A public client must not choose its own privileges. Separating registration and
+profile data from administrative role changes gives authorization an explicit
+operation to protect once the caller's identity is established.
