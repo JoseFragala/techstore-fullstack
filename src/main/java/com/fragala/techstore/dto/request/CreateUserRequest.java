@@ -3,31 +3,25 @@ package com.fragala.techstore.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter 
-@Setter 
-@NoArgsConstructor 
-public class CreateUserRequest{
+public record CreateUserRequest(
 
 
     @NotBlank 
-    private String name;
+    String name,
 
     @NotBlank 
     @Email 
-    private String email;
+    String email,
 
     @NotBlank 
-    private String password;
+    String password,
 
     @NotBlank 
-    private String phone;
+    String phone,
 
     @NotNull 
-    private Long roleId;
+    Long roleId
 
-
+) {
 }

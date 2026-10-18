@@ -2,29 +2,23 @@ package com.fragala.techstore.dto.response;
 
 import java.time.LocalDateTime;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public record UserResponse(
 
-@Getter 
-@Setter 
-@NoArgsConstructor 
-public class UserResponse {
+        Long id,
 
-    private Long id;
+        String name,
 
-    private String name;
+        String email,
 
-    private String email;
+        String phone,
 
-    private String phone;
+        boolean active,
 
-    private boolean active;
+        RoleResponse role,
 
-    private RoleResponse role;
+        LocalDateTime createdAt,
 
-    private LocalDateTime createdAt;
+        LocalDateTime updatedAt
 
-    private LocalDateTime updatedAt;
-    
+) {
 }
