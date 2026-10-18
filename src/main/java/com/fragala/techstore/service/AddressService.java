@@ -32,6 +32,8 @@ public class AddressService {
         this.userRepository = userRepository;
         this.addressMapper = addressMapper;
     }
+
+    @Transactional
     public AddressResponse create(CreateAddressRequest request){
 
         User user = userRepository.findById(request.getUserId())
