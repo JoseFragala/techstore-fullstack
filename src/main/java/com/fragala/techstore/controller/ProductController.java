@@ -58,14 +58,14 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findById(@PathVariable Long id) {
 
-        ProductResponse response = productService.findById(id);
+        ProductResponse response = productService.findActiveById(id);
 
         return ResponseEntity.ok(response);
     }
     
     @GetMapping
     public ResponseEntity<List<ProductResponse>> findAll() {
-        List<ProductResponse> response = productService.findAll();
+        List<ProductResponse> response = productService.findAllActive();
 
         return ResponseEntity.ok(response);
     }

@@ -19,6 +19,8 @@ import com.fragala.techstore.entity.Role;
  */
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
+    java.util.Optional<Role> findByName(String name);
+
     /**
      * Checks whether a role with the given name already exists.
      *

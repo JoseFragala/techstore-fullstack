@@ -20,6 +20,10 @@ import com.fragala.techstore.entity.Product;
 public interface ProductRepository extends JpaRepository <Product, Long> {
 
     boolean existsBySku(String sku);
+
+    java.util.List<Product> findAllByActiveTrue();
+
+    java.util.Optional<Product> findByIdAndActiveTrue(Long id);
     
     
 }

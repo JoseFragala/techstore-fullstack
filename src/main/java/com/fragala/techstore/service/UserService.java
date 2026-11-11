@@ -43,8 +43,8 @@ public class UserService {
             throw new UserAlreadyExistsException("Email already registered: " + request.email());
         }
 
-        Role role = roleRepository.findById(request.roleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + request.roleId()));
+        Role role = roleRepository.findByName("CUSTOMER")
+                .orElseThrow(() -> new ResourceNotFoundException("Customer role not configured"));
 
         User user = new User();
         user.setName(request.name());

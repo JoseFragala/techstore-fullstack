@@ -104,6 +104,16 @@ public class ProductService {
         return productMapper.toResponse(product);
 
     }
+    public ProductResponse findActiveById(Long id) {
+        Product product = productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return productMapper.toResponse(product);
+    }
+
+    public List<ProductResponse> findAllActive() {
+        return productRepository.findAllByActiveTrue().stream()
+                .map(productMapper::toResponse).toList();
+    }
     public List<ProductResponse> findAll(){
         return productRepository.findAll()
                 .stream()

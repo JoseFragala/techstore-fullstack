@@ -19,6 +19,8 @@ import com.fragala.techstore.entity.User;
  */
 public interface UserRepository extends JpaRepository <User, Long> {
 
+    java.util.Optional<User> findByEmail(String email);
+
     boolean existsByEmail(String email);
 
     boolean existsByEmailAndIdNot(String email, Long id);
