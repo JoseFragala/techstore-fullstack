@@ -16,6 +16,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -37,7 +44,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.fragala.techstore.dto.request.UpdateProductRequest;
 
 
-@WebMvcTest(ProductController.class)
+@WebMvcTest(controllers = ProductController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 public class ProductControllerTest {
     
   @Autowired 
@@ -83,7 +92,7 @@ public class ProductControllerTest {
 
         // WHEN + THEN
         mockMvc.perform(
-                post("/products")
+                post("/products").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         )
@@ -112,7 +121,7 @@ public class ProductControllerTest {
 
         // WHEN + THEN
         mockMvc.perform(
-                post("/products")
+                post("/products").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         )
@@ -151,7 +160,7 @@ public class ProductControllerTest {
                     .thenReturn(response);
 
             mockMvc.perform(
-                    put("/products/{id}", productId)
+                    put("/products/{id}", productId).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request))
             )
@@ -180,7 +189,7 @@ public class ProductControllerTest {
                 request.setStock(20);
 
                 mockMvc.perform(
-                        put("/products/{id}", productId)
+                        put("/products/{id}", productId).with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                 )
@@ -205,7 +214,7 @@ public class ProductControllerTest {
                     java.util.List.of()
                 );
 
-                when(productService.findById(productId))
+                when(productService.findActiveById(productId))
                     .thenReturn(response);
 
                 mockMvc.perform(
@@ -220,14 +229,14 @@ public class ProductControllerTest {
                     .andExpect(jsonPath("$.stock").value(10))
                     .andExpect(jsonPath("$.active").value(true));
 
-                verify(productService).findById(productId);
+                verify(productService).findActiveById(productId);
             }
 
             @Test // findbyid whem productdoe nos exists.
             void findById_shouldReturnNotFound_whenProductDoesNotExist() throws Exception {
                 Long productId = 999L;
 
-                when(productService.findById(productId))
+                when(productService.findActiveById(productId))
                     .thenThrow(new ResourceNotFoundException("Product not found"));
 
                 mockMvc.perform(
@@ -235,7 +244,7 @@ public class ProductControllerTest {
                 )
                     .andExpect(status().isNotFound());
 
-                verify(productService).findById(productId);
+                verify(productService).findActiveById(productId);
             }
 
             @Test // find all product exists.
@@ -271,7 +280,7 @@ public class ProductControllerTest {
                     java.util.List.of()
                 );
 
-                when(productService.findAll())
+                when(productService.findAllActive())
                     .thenReturn(java.util.List.of(firstProduct, secondProduct));
 
                 mockMvc.perform(
@@ -286,13 +295,13 @@ public class ProductControllerTest {
                     .andExpect(jsonPath("$[1].name").value("Keyboard"))
                     .andExpect(jsonPath("$[1].sku").value("KEY-001"));
 
-                verify(productService).findAll();
+                verify(productService).findAllActive();
             }
 
             @Test //emptylist
             void findAll_shouldReturnEmptyList_whenNoProductsExist() throws Exception {
 
-                when(productService.findAll())
+                when(productService.findAllActive())
                     .thenReturn(java.util.List.of());
 
                 mockMvc.perform(
@@ -301,7 +310,7 @@ public class ProductControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(0));
 
-                verify(productService).findAll();
+                verify(productService).findAllActive();
             }
             @Test // deactivate sucess
             void deactivate_shouldReturnNoContent_whenProductExists() throws Exception {
@@ -309,7 +318,7 @@ public class ProductControllerTest {
 
                 doNothing().when(productService).deactivate(productId);
 
-                mockMvc.perform(patch("/products/{id}/deactivate", productId))
+                mockMvc.perform(patch("/products/{id}/deactivate", productId).with(csrf()))
                         .andExpect(status().isNoContent());
 
                 verify(productService).deactivate(productId);
@@ -323,7 +332,7 @@ public class ProductControllerTest {
                         .when(productService)
                         .deactivate(productId);
 
-                mockMvc.perform(patch("/products/{id}/deactivate", productId))
+                mockMvc.perform(patch("/products/{id}/deactivate", productId).with(csrf()))
                         .andExpect(status().isNotFound());
 
                 verify(productService).deactivate(productId);
@@ -334,7 +343,7 @@ public class ProductControllerTest {
 
                 doNothing().when(productService).activate(productId);
 
-                mockMvc.perform(patch("/products/{id}/activate", productId))
+                mockMvc.perform(patch("/products/{id}/activate", productId).with(csrf()))
                         .andExpect(status().isNoContent());
 
                 verify(productService).activate(productId);
@@ -348,7 +357,7 @@ public class ProductControllerTest {
                         .when(productService)
                         .activate(productId);
 
-                mockMvc.perform(patch("/products/{id}/activate", productId))
+                mockMvc.perform(patch("/products/{id}/activate", productId).with(csrf()))
                         .andExpect(status().isNotFound());
 
                 verify(productService).activate(productId);
@@ -360,7 +369,7 @@ public class ProductControllerTest {
 
                 doNothing().when(productService).delete(productId);
 
-                mockMvc.perform(delete("/products/{id}", productId))
+                mockMvc.perform(delete("/products/{id}", productId).with(csrf()))
                         .andExpect(status().isNoContent());
 
                 verify(productService).delete(productId);
@@ -373,7 +382,7 @@ public class ProductControllerTest {
                         .when(productService)
                         .delete(productId);
 
-                mockMvc.perform(delete("/products/{id}", productId))
+                mockMvc.perform(delete("/products/{id}", productId).with(csrf()))
                         .andExpect(status().isNotFound());
 
                 verify(productService).delete(productId);
@@ -384,4 +393,3 @@ public class ProductControllerTest {
 
             
 }
-  

@@ -10,6 +10,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,7 +32,9 @@ import com.fragala.techstore.service.RoleService;
  * <p>These tests verify the HTTP contract of the role endpoints
  * independently from the database and service implementation.
  */
-@WebMvcTest(RoleController.class)
+@WebMvcTest(controllers = RoleController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 class RoleControllerTest {
 
     @Autowired

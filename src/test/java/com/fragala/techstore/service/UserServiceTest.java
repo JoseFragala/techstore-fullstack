@@ -42,14 +42,14 @@ class UserServiceTest {
     private UserService userService;
 
     private final CreateUserRequest createRequest = new CreateUserRequest(
-        "Alice", "alice@example.com", "test-password", "11999990000", 1L);
+        "Alice", "alice@example.com", "test-password", "11999990000");
     private final UpdateUserRequest updateRequest = new UpdateUserRequest(
         "Alice Updated", "updated@example.com", "11999991111", 2L);
 
     @Test
     void create_shouldCreateUser_whenRequestIsValid() {
         Role role = new Role("CUSTOMER", "Customer role");
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(role));
+        when(roleRepository.findByName("CUSTOMER")).thenReturn(Optional.of(role));
         when(passwordEncoder.encode(createRequest.password())).thenReturn("encoded-test-password");
         when(userRepository.save(any(User.class))).thenAnswer(call -> call.getArgument(0));
         UserResponse expected = response();

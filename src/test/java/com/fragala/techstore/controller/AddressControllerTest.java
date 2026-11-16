@@ -8,6 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,7 +36,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 
-@WebMvcTest(AddressController.class)
+@WebMvcTest(controllers = AddressController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 public class AddressControllerTest {
 
     @Autowired
@@ -176,7 +185,7 @@ public class AddressControllerTest {
         // WHEN + THEN
 
         mockMvc.perform(
-            post("/addresses")
+            post("/addresses").with(csrf())
                     .contentType("application/json")
                     .content(json)
         )
@@ -209,7 +218,7 @@ public class AddressControllerTest {
         // WHEN + THEN
 
         mockMvc.perform(
-                post("/addresses")
+                post("/addresses").with(csrf())
                         .contentType("application/json")
                         .content(json)
         )
@@ -265,7 +274,7 @@ public class AddressControllerTest {
         //WHEN + THEN
 
         mockMvc.perform(
-            put("/addresses/1")
+            put("/addresses/1").with(csrf())
                     .contentType("application/json")
                     .content(json)
         )     
@@ -300,7 +309,7 @@ public class AddressControllerTest {
     // WHEN + THEN
 
     mockMvc.perform(
-            put("/addresses/1")
+            put("/addresses/1").with(csrf())
                     .contentType("application/json")
                     .content(json)
     )
@@ -343,7 +352,7 @@ public class AddressControllerTest {
     // WHEN + THEN
 
     mockMvc.perform(
-            put("/addresses/999")
+            put("/addresses/999").with(csrf())
                     .contentType("application/json")
                     .content(json)
     )
@@ -358,7 +367,7 @@ public class AddressControllerTest {
 
         //WHEN + THEN
 
-        mockMvc.perform(delete("/addresses/1"))
+        mockMvc.perform(delete("/addresses/1").with(csrf()))
                 .andExpect(status().isNoContent());
         
         verify(addressService).delete(1L);
@@ -375,7 +384,7 @@ public class AddressControllerTest {
         
         // WHEN + THEN
 
-        mockMvc.perform(delete("/addresses/999"))
+        mockMvc.perform(delete("/addresses/999").with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Address not found"));

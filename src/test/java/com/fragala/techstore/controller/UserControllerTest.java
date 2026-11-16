@@ -10,6 +10,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -29,7 +36,9 @@ import com.fragala.techstore.service.UserService;
 
 import tools.jackson.databind.ObjectMapper;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(controllers = UserController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -39,14 +48,14 @@ class UserControllerTest {
     private UserService userService;
 
     private final CreateUserRequest createRequest = new CreateUserRequest(
-        "Alice", "alice@example.com", "test-password", "11999990000", 1L);
+        "Alice", "alice@example.com", "test-password", "11999990000");
     private final UpdateUserRequest updateRequest = new UpdateUserRequest(
         "Alice Updated", "updated@example.com", "11999991111", 1L);
 
     @Test
     void create_shouldReturn201WithoutPassword_whenRequestIsValid() throws Exception {
         when(userService.create(createRequest)).thenReturn(response());
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/users").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(5))
@@ -60,7 +69,7 @@ class UserControllerTest {
     @MethodSource("invalidCreateRequests")
     void create_shouldReturn400WithoutCallingService_whenRequestIsInvalid(CreateUserRequest request)
             throws Exception {
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/users").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400))
@@ -73,7 +82,7 @@ class UserControllerTest {
     void create_shouldReturn409_whenEmailAlreadyExists() throws Exception {
         when(userService.create(createRequest))
             .thenThrow(new UserAlreadyExistsException("Email already registered"));
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/users").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest)))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.status").value(409))
@@ -83,7 +92,7 @@ class UserControllerTest {
     @Test
     void create_shouldReturn404_whenRoleDoesNotExist() throws Exception {
         when(userService.create(createRequest)).thenThrow(new ResourceNotFoundException("Role not found"));
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/users").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Role not found"));
@@ -132,7 +141,7 @@ class UserControllerTest {
         UserResponse updated = new UserResponse(5L, updateRequest.name(), updateRequest.email(),
             updateRequest.phone(), true, response().role(), response().createdAt(), response().updatedAt());
         when(userService.update(5L, updateRequest)).thenReturn(updated);
-        mockMvc.perform(put("/users/5").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/users/5").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value(updateRequest.name()))
@@ -145,7 +154,7 @@ class UserControllerTest {
     @MethodSource("invalidUpdateRequests")
     void update_shouldReturn400WithoutCallingService_whenRequestIsInvalid(UpdateUserRequest request)
             throws Exception {
-        mockMvc.perform(put("/users/5").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/users/5").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errors").isMap());
@@ -156,7 +165,7 @@ class UserControllerTest {
     void update_shouldReturn409_whenEmailAlreadyExists() throws Exception {
         when(userService.update(5L, updateRequest))
             .thenThrow(new UserAlreadyExistsException("Email already registered"));
-        mockMvc.perform(put("/users/5").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/users/5").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.status").value(409));
@@ -166,7 +175,7 @@ class UserControllerTest {
     @ValueSource(strings = {"User not found", "Role not found"})
     void update_shouldReturn404_whenReferencedResourceDoesNotExist(String message) throws Exception {
         when(userService.update(5L, updateRequest)).thenThrow(new ResourceNotFoundException(message));
-        mockMvc.perform(put("/users/5").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/users/5").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value(message));
@@ -175,7 +184,7 @@ class UserControllerTest {
     @ParameterizedTest
     @ValueSource(strings = {"activate", "deactivate"})
     void changeActiveState_shouldReturn204_whenUserExists(String operation) throws Exception {
-        mockMvc.perform(patch("/users/5/" + operation))
+        mockMvc.perform(patch("/users/5/" + operation).with(csrf()))
             .andExpect(status().isNoContent()).andExpect(content().string(""));
         if (operation.equals("activate")) {
             verify(userService).activate(5L);
@@ -193,19 +202,19 @@ class UserControllerTest {
         } else {
             doThrow(new ResourceNotFoundException("User not found")).when(userService).deactivate(99L);
         }
-        mockMvc.perform(patch("/users/99/" + operation))
+        mockMvc.perform(patch("/users/99/" + operation).with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("User not found"));
     }
 
     private static Stream<CreateUserRequest> invalidCreateRequests() {
         return Stream.of(
-            new CreateUserRequest(" ", "alice@example.com", "test-password", "11999990000", 1L),
-            new CreateUserRequest("Alice", "invalid", "test-password", "11999990000", 1L),
-            new CreateUserRequest("Alice", "", "test-password", "11999990000", 1L),
-            new CreateUserRequest("Alice", "alice@example.com", " ", "11999990000", 1L),
-            new CreateUserRequest("Alice", "alice@example.com", "test-password", " ", 1L),
-            new CreateUserRequest("Alice", "alice@example.com", "test-password", "11999990000", null));
+            new CreateUserRequest(" ", "alice@example.com", "test-password", "11999990000"),
+            new CreateUserRequest("Alice", "invalid", "test-password", "11999990000"),
+            new CreateUserRequest("Alice", "", "test-password", "11999990000"),
+            new CreateUserRequest("Alice", "alice@example.com", " ", "11999990000"),
+            new CreateUserRequest("Alice", "alice@example.com", "test-password", " "),
+            new CreateUserRequest("Alice", "alice@example.com", "test-password", null));
     }
 
     private static Stream<UpdateUserRequest> invalidUpdateRequests() {

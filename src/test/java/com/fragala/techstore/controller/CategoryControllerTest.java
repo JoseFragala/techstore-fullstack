@@ -8,6 +8,13 @@ import static org.mockito.Mockito.when;
 
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,7 +37,9 @@ import tools.jackson.databind.ObjectMapper;
 
 
 
-@WebMvcTest(CategoryController.class)
+@WebMvcTest(controllers = CategoryController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 public class CategoryControllerTest {
 
         @Autowired
@@ -56,7 +65,7 @@ public class CategoryControllerTest {
         when(categoryService.create(any(CreateCategoryRequest.class)))
             .thenReturn(response);
 
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/categories").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -70,7 +79,7 @@ public class CategoryControllerTest {
         CreateCategoryRequest request = new CreateCategoryRequest();
         request.setName("");
 
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/categories").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -142,7 +151,7 @@ public class CategoryControllerTest {
         when(categoryService.update(eq(1L), any(UpdateCategoryRequest.class)))
                 .thenReturn(response);
 
-        mockMvc.perform(put("/categories/1")
+        mockMvc.perform(put("/categories/1").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -157,7 +166,7 @@ public class CategoryControllerTest {
         UpdateCategoryRequest request = new UpdateCategoryRequest();
         request.setName("");
 
-        mockMvc.perform(put("/categories/1")
+        mockMvc.perform(put("/categories/1").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest());
@@ -168,7 +177,7 @@ public class CategoryControllerTest {
 
         doNothing().when(categoryService).delete(1L);
 
-        mockMvc.perform(delete("/categories/1"))
+        mockMvc.perform(delete("/categories/1").with(csrf()))
             .andExpect(status().isNoContent());
 
     }
@@ -179,7 +188,7 @@ public class CategoryControllerTest {
         doThrow(new ResourceNotFoundException("Category not found"))
                 .when(categoryService).delete(1L);
         
-        mockMvc.perform(delete("/categories/1"))
+        mockMvc.perform(delete("/categories/1").with(csrf()))
                 .andExpect(status().isNotFound());
     }
 
@@ -189,6 +198,3 @@ public class CategoryControllerTest {
 
 
     }
-    
-
-

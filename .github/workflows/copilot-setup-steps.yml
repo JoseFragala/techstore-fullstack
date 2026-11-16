@@ -38,14 +38,11 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Configure local database environment
+      - name: Run Maven tests
+        shell: bash
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/techstore
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
           SPRING_JPA_HIBERNATE_DDL_AUTO: update
-        run: echo "Database configuration prepared for CI validation."
-
-      - name: Run Maven tests
-        shell: bash
         run: bash ./mvnw test

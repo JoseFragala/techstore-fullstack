@@ -6,7 +6,7 @@ This document tracks the implementation progress of TechStore based on the curre
 
 It is intended to remain a high-level development guide. It preserves completed work, highlights what is partially implemented, and organizes the remaining backend work in a practical order that respects the current architecture.
 
-Last updated from local source and tests: October 18, 2026. GitHub Project status was not synchronized during this update.
+Last updated from local source and tests: October 20, 2026. GitHub Project status was not synchronized during this update.
 
 ---
 
@@ -271,7 +271,7 @@ Protect the API with authentication and authorization after the validation layer
 
 `Partially completed`
 
-Password hashing is implemented with spring-security-crypto and a PBKDF2 PasswordEncoder. No web security configuration, authentication endpoint, JWT flow, or authorization enforcement exists. The approved policy is public registration as CUSTOMER and role assignment only by authenticated ADMIN; current requests still accept roleId without enforcing that policy. See 08-security.md.
+Password hashing and the initial Spring Security/Spring Session JDBC foundation are implemented. JSON login, current-user lookup, logout, CSRF, explicit credentialed CORS, PostgreSQL sessions, CUSTOMER registration, and public active-catalog reads are present. Unfinished management routes are denied. Role-specific lifetimes, global revocation, owner/admin operations, and initial ADMIN provisioning remain pending. JWT is deferred. See 08-security.md for exact limitations.
 
 ## Milestones
 
@@ -281,9 +281,10 @@ Password hashing is implemented with spring-security-crypto and a PBKDF2 Passwor
 - Dependencies:
   - Phase 5 - Validation
 - Expected deliverables:
-  - [ ] `Spring Security Configuration`
-  - [ ] `Authentication API`
-  - [ ] `JWT Authentication`
+  - [x] `Spring Security Configuration` (initial foundation; access matrix incomplete)
+  - [x] `Authentication API` (login/current user/logout; lifecycle rules incomplete)
+  - [x] `Server-Side Session Authentication` (initial foundation; role lifetimes/revocation pending)
+  - [ ] `JWT Authentication` (deferred learning goal)
   - [ ] `Role Authorization`
   - [x] `Password Hashing`
 
@@ -298,7 +299,8 @@ Password hashing is implemented with spring-security-crypto and a PBKDF2 Passwor
 - Spring Security basics
 - authentication and authorization
 - password storage
-- stateless API security with JWT
+- server-side sessions, cookie security, CSRF, and access revocation
+- stateless API security with JWT as a later learning goal
 - role-based access control
 
 ## Definition of Done
@@ -423,6 +425,6 @@ These items remain part of the long-term product vision and stay outside the cur
 
 - Current phase: complete user testing and password storage, then define cart use cases
 - Current milestone: user module hardening and security planning
-- Next implementation task: plan authentication and enforcement of the approved role policy; define cart rules before cart implementation
+- Next implementation task: implement server-side session authentication following 08-security.md; settle remaining access rules before final endpoint authorization
 - Next milestone: cart service/API and authentication/authorization in explicitly scoped increments
 - Overall progress is tracked by verified deliverables; no percentage estimate is maintained

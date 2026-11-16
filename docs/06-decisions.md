@@ -373,10 +373,147 @@ Approved by the project owner on October 18, 2026:
 Planned, not enforced. The current create and update requests still accept
 roleId. Implement contract changes and authorization with the authentication
 work; password hashing alone does not protect these endpoints. Initial ADMIN
-provisioning and ownership rules for profile updates still require definition.
+provisioning and ownership rules were subsequently approved in decision 025.
 
 ## Rationale
 
 A public client must not choose its own privileges. Separating registration and
 profile data from administrative role changes gives authorization an explicit
 operation to protect once the caller's identity is established.
+
+# 025 - Initial Administrator, User Ownership, and Development Accounts
+
+## Decision
+
+Approved by the project owner on October 19, 2026:
+
+- Bootstrap the initial ADMIN only when explicitly enabled, using externally
+  configured credentials and the existing password encoder. No default password
+  or public ADMIN registration is introduced. Restarts must not reset passwords
+  or silently promote existing accounts.
+- Authenticated owners can read/update their own profiles, manage their own
+  addresses, and change passwords after confirming the current password.
+- ADMIN can list users, read other user profiles, activate/deactivate accounts,
+  and assign roles. SELLER has no administrative user-management permissions.
+- Current accounts are disposable development data and can be recreated through
+  the hashed-password workflow. No legacy plaintext authentication is needed.
+
+## Implementation Status
+
+Approved design only. No accounts have been deleted or modified by this decision.
+Authentication mechanics, revocation, and remaining catalog access rules still
+require definition. Lifetime rules were subsequently approved in decision 026.
+See 08-security.md for the permission matrix.
+
+## Rationale
+
+Explicit bootstrap avoids public privilege creation. Ownership checks protect
+personal data independently of role membership. Recreating disposable fixtures
+avoids introducing legacy plaintext support into the authentication design.
+
+# 026 - Role-Based Authentication Lifetimes and Password Confirmation
+
+## Decision
+
+Approved by the project owner on October 19, 2026:
+
+- CUSTOMER access can persist across browser restarts, with a 30-day inactivity
+  limit and a 90-day absolute lifetime since login.
+- ADMIN and SELLER access must not persist across browser sessions, with a
+  15-minute inactivity limit and an 8-hour absolute lifetime since login.
+- Silent renewal is allowed only within both limits. Reaching either limit
+  requires login again; activity never extends the absolute lifetime.
+- Require the current password when changing a password. Avoid prompting for
+  credentials on every action. Additional sensitive operations requiring
+  confirmation remain to be specified.
+
+## Implementation Status
+
+Approved behavior only. No authentication mechanism or enforcement is implemented
+by this documentation change. Browser restoration semantics and enforcement of
+the revocation rules approved in decision 027 remain implementation work.
+See 08-security.md.
+
+## Rationale
+
+Customers can resume shopping conveniently while privileged accounts have shorter
+access windows. Separate inactivity and absolute limits allow renewal without
+indefinitely extending a login. Targeted confirmation preserves usability.
+
+# 027 - Email Login and Authentication Revocation
+
+## Decision
+
+Approved by the project owner on October 19, 2026:
+
+- Authenticate with email and password.
+- Logout invalidates the current authenticated access, preserving independent
+  logins elsewhere.
+- Successful password changes invalidate all existing authenticated accesses,
+  including the current one, and require a new login.
+- Account deactivation blocks new logins and existing accesses from the next
+  request after the change is committed.
+- Role changes invalidate all existing authenticated accesses and require login
+  again with the updated permissions.
+
+## Implementation Status
+
+Approved behavior only. Server-side sessions were subsequently selected in
+decision 028; revocation is not yet implemented. Tests must cover
+multiple independent logins and rejection of previously issued credentials after
+the relevant account change.
+
+## Rationale
+
+Explicit revocation makes account state and permission changes effective without
+waiting for credential expiration. Local logout remains independent from the
+global invalidation required after password and role changes.
+
+# 028 - Server-Side Sessions for the Separate Web Frontend
+
+## Decision
+
+Selected by the project owner on October 19, 2026: use server-side sessions for
+authentication while retaining separate frontend and backend projects. JWT is
+deferred from the initial authentication implementation.
+
+The technical design uses Spring Security and Spring Session JDBC backed by the
+existing PostgreSQL instance. Browser cookies hold an opaque session identifier.
+Sessions and browser cookies have distinct lifetimes; both must support the
+approved CUSTOMER persistence and privileged access restrictions.
+
+## Implementation Status and Limitations
+
+Design only. No security/session dependency or application behavior was changed
+by recording this decision. CSRF, explicit credentialed CORS, secure cookie
+configuration, global invalidation, schema provisioning, and lifetime checks
+must be implemented and tested. Browser restoration may preserve session cookies;
+browser closure alone cannot reliably enforce privileged logout. Server-side
+deadlines and explicit invalidation remain authoritative.
+
+## Rationale
+
+Central session control suits immediate account revocation and inactivity limits.
+JDBC reuses existing infrastructure and supports backend restarts without losing
+all customer sessions. Frontend separation does not require JWT. See 08-security.md
+for the implementation order, affected modules, validation, and open questions.
+
+# 029 - Public Catalog and Authentication Before Shopping Actions
+
+## Decision
+
+Approved on October 20, 2026: visitors can browse the catalog without login.
+Buying or adding to a cart requires authentication. The frontend directs an
+anonymous shopper to login/registration; the API returns an authentication error
+rather than a page redirect. Public product reads expose active products only.
+Catalog write permissions remain to be defined for ADMIN and SELLER.
+
+## Initial Implementation Scope
+
+The session foundation provides JSON login, current-user lookup, logout, CSRF,
+configured credentialed CORS, PostgreSQL-backed sessions, and CUSTOMER registration.
+Public GET catalog queries are enabled. Other endpoints remain denied until their
+owner/admin policies are implemented. This intentionally changes current HTTP
+availability; existing business/controller contracts remain covered separately.
+No cart or purchase implementation is claimed. See 08-security.md for the common
+15-minute interim timeout and the approved lifecycle features still outstanding.

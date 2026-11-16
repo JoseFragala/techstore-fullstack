@@ -8,6 +8,13 @@ import static org.mockito.Mockito.when;
 
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import com.fragala.techstore.config.SecurityConfig;
+import com.fragala.techstore.support.ControllerTestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,7 +35,9 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import tools.jackson.databind.ObjectMapper;
 
-@WebMvcTest(BrandController.class)
+@WebMvcTest(controllers = BrandController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@Import(ControllerTestSecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 public class BrandControllerTest {
 
         @Autowired
@@ -54,7 +63,7 @@ public class BrandControllerTest {
         when(brandService.create(any(CreateBrandRequest.class)))
             .thenReturn(response);
 
-        mockMvc.perform(post("/brand")
+        mockMvc.perform(post("/brand").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -68,7 +77,7 @@ public class BrandControllerTest {
         CreateBrandRequest request = new CreateBrandRequest();
         request.setName("");
 
-        mockMvc.perform(post("/brand")
+        mockMvc.perform(post("/brand").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -140,7 +149,7 @@ public class BrandControllerTest {
         when(brandService.update(eq(1L), any(UpdateBrandRequest.class)))
                 .thenReturn(response);
 
-        mockMvc.perform(put("/brand/1")
+        mockMvc.perform(put("/brand/1").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -155,7 +164,7 @@ public class BrandControllerTest {
         UpdateBrandRequest request = new UpdateBrandRequest();
         request.setName("");
 
-        mockMvc.perform(put("/brand/1")
+        mockMvc.perform(put("/brand/1").with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest());
@@ -166,7 +175,7 @@ public class BrandControllerTest {
 
         doNothing().when(brandService).delete(1L);
 
-        mockMvc.perform(delete("/brand/1"))
+        mockMvc.perform(delete("/brand/1").with(csrf()))
             .andExpect(status().isNoContent());
 
     }
@@ -177,7 +186,7 @@ public class BrandControllerTest {
         doThrow(new ResourceNotFoundException("Brand not found"))
                 .when(brandService).delete(1L);
         
-        mockMvc.perform(delete("/brand/1"))
+        mockMvc.perform(delete("/brand/1").with(csrf()))
                 .andExpect(status().isNotFound());
     }
 
@@ -187,6 +196,3 @@ public class BrandControllerTest {
 
 
     }
-    
-
-

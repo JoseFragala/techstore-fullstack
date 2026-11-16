@@ -46,7 +46,7 @@ class UserServiceIntegrationTest {
         String originalPassword = "original-integration-password";
         userId = userService.create(new CreateUserRequest("Password test user",
             "password-" + UUID.randomUUID() + "@example.com", originalPassword,
-            "11999990000", roleId)).id();
+            "11999990000")).id();
 
         String originalHash = userRepository.findById(userId).orElseThrow().getPassword();
         assertNotEquals(originalPassword, originalHash);
